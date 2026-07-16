@@ -49,6 +49,9 @@ app.post('/create-checkout-session', async (req, res) => {
     const session = await stripe.checkout.sessions.create({
       ui_mode: 'embedded',
       mode: 'payment',
+      payment_method_types: ['card'],
+      submit_type: 'pay',
+      custom_text: { submit: { message: 'Your filing begins the moment your payment completes.' } },
       line_items: [{ price: await getPriceId(), quantity: 1 }],
       customer_email: email || undefined,
       client_reference_id: app_id || undefined,
