@@ -1,0 +1,12 @@
+{
+  "name": "permitsclerk-payments-api",
+  "private": true,
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js"
+  },
+  "dependencies": {
+    "express": "^4.19.0",
+    "stripe": "^16.0.0"
+  }
+}
