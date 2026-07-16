@@ -91,7 +91,7 @@ const PH_STEPS=['flow_step_1_state_selection','flow_step_2_business_type','flow_
 function phStep(){posthog.capture(PH_STEPS[i],{step:i+1,page:'application_flow',state:flowState.value||preState||null})}
 posthog.capture('application_flow_entered',{state_preselected:!!preState,state:preState||null});
 if(location.protocol==='file:'){document.querySelectorAll('a').forEach(a=>{const h=a.getAttribute('href');if(h==='../')a.setAttribute('href','../index.html');else if(h&&h.startsWith('../#'))a.setAttribute('href','../index.html'+h.slice(2));else if(h==='./')a.setAttribute('href','index.html')})}
-const CHECKOUT_API='';// set to the payments API URL (e.g. https://permitsclerk-payments.onrender.com) to switch to embedded checkout
+const CHECKOUT_API='https://permitsclerk-backend.onrender.com';// set to the payments API URL (e.g. https://permitsclerk-payments.onrender.com) to switch to embedded checkout
 let embeddedCheckout=null;
 async function mountEmbedded(){
  if(!CHECKOUT_API||embeddedCheckout)return;
