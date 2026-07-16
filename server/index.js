@@ -1,13 +1,22 @@
 // Permits Clerk payment API — creates embedded Checkout Sessions.
 // Env vars (set in the Render dashboard, never committed):
 //   STRIPE_SECRET_KEY  sk_live_... from the same account as the publishable key
-//   STRIPE_PRICE_ID    price_... of the $204 product
+//   STRIPE_PRICE_ID    optional override; otherwise the product's default price is used
 //   ALLOWED_ORIGINS    comma-separated, e.g. https://permitsclerk.com,https://www.permitsclerk.com
 const express = require('express');
 const Stripe = require('stripe');
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
-const PRICE_ID = process.env.STRIPE_PRICE_ID;
+const PRODUCT_ID = 'prod_UtTz3Qehuonkiu'; // Seller's Permit Application Filing ($204)
+let PRICE_ID = process.env.STRIPE_PRICE_ID || null;
+async function getPriceId() {
+  if (PRICE_ID) return PRICE_ID;
+  const product = await stripe.products.retrieve(PRODUCT_ID);
+  if (!product.default_price) throw new Error('product has no default price');
+  PRICE_ID = typeof product.default_price === 'string' ? product.default_price : product.default_price.id;
+  console.log('resolved default price:', PRICE_ID);
+  return PRICE_ID;
+}
 const ORIGINS = (process.env.ALLOWED_ORIGINS || 'https://permitsclerk.com,https://www.permitsclerk.com')
   .split(',').map(s => s.trim());
 
@@ -40,7 +49,7 @@ app.post('/create-checkout-session', async (req, res) => {
     const session = await stripe.checkout.sessions.create({
       ui_mode: 'embedded',
       mode: 'payment',
-      line_items: [{ price: PRICE_ID, quantity: 1 }],
+      line_items: [{ price: await getPriceId(), quantity: 1 }],
       customer_email: email || undefined,
       client_reference_id: app_id || undefined,
       metadata,
