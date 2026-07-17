@@ -46,18 +46,27 @@ app.post('/create-checkout-session', async (req, res) => {
         if (metadata[k] === undefined) metadata[k] = String(v ?? '').slice(0, 450);
       }
     }
-    const session = await stripe.checkout.sessions.create({
+    const params = () => ({
       ui_mode: 'embedded',
       mode: 'payment',
       payment_method_types: ['card'],
       submit_type: 'pay',
       custom_text: { submit: { message: 'Your filing begins the moment your payment completes.' } },
-      line_items: [{ price: await getPriceId(), quantity: 1 }],
       customer_email: email || undefined,
       client_reference_id: app_id || undefined,
       metadata,
       return_url: 'https://www.permitsclerk.com/get-your-sales-permit?paid=1&session_id={CHECKOUT_SESSION_ID}',
     });
+    let session;
+    try {
+      session = await stripe.checkout.sessions.create({ ...params(), line_items: [{ price: await getPriceId(), quantity: 1 }] });
+    } catch (err) {
+      // price changed in Stripe (old default archived) — drop cache, re-resolve, retry once
+      if (/archived|inactive|no such price/i.test(err.message || '')) {
+        PRICE_ID = null;
+        session = await stripe.checkout.sessions.create({ ...params(), line_items: [{ price: await getPriceId(), quantity: 1 }] });
+      } else throw err;
+    }
     res.json({ clientSecret: session.client_secret });
   } catch (err) {
     console.error('checkout session error:', err.message);
