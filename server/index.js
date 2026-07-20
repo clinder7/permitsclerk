@@ -49,6 +49,8 @@ app.post('/create-checkout-session', async (req, res) => {
     const params = () => ({
       ui_mode: 'embedded',
       mode: 'payment',
+      // copy application metadata onto the PaymentIntent so it shows on the payment in the Dashboard
+      payment_intent_data: { metadata, description: 'Seller\'s Permit Filing — ' + (metadata.state || 'state n/a') + ' — ' + (metadata.app_id || '') },
       payment_method_types: ['card'],
       submit_type: 'pay',
       custom_text: { submit: { message: 'Your filing begins the moment your payment completes.' } },
