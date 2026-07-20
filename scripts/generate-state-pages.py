@@ -151,7 +151,8 @@ def faq_jsonld(qas):
 def page_taxed(s):
     slug = s["name"].lower().replace(" ", "-") + "-sellers-permit"
     q = s["name"].replace(" ", "%20")
-    permit_label = s["permit"] if "Seller" in s["permit"] else f'{s["permit"]} (seller’s permit)'
+    permit_label = "Seller’s Permit"
+    official = s["permit"] if "Seller" not in s["permit"] else "seller’s permit"
     fee_line = ("free — the state charges nothing" if s["fee"] == "$0"
                 else f'{s["fee"]} (paid to the state, separate from our fee)')
     qas = [
@@ -179,7 +180,7 @@ def page_taxed(s):
     body += f"""
 <section class="hero">
 <h1>Get Your {e(s["name"])} {e(permit_label)} — Filed Fast, Done Right</h1>
-<p class="lead">Businesses selling taxable goods in {e(s["name"])} must register with the {e(s["agency"])}. Answer a few simple questions — we prepare your application, check it for errors, and file it correctly. <strong>$75 flat, no hidden service fees.</strong></p>
+<p class="lead">Businesses selling taxable goods in {e(s["name"])} must register for a {e(official)} with the {e(s["agency"])}. Answer a few simple questions — we prepare your application, check it for errors, and file it correctly. <strong>$75 flat, no hidden service fees.</strong></p>
 <a class="btn" href="../get-your-sales-permit/?state={q}">Start my {e(s["name"])} application →</a>
 <div class="trust-line"><span class="stars">★★★★★</span> 4.8/5 from 1,376 reviews · Trusted by 10,000+ founders</div>
 <div class="facts">
