@@ -98,7 +98,7 @@ async function mountEmbedded(){
  try{
   const d=collectApp();
   if(!window.Stripe){await new Promise((res,rej)=>{const sc=document.createElement('script');sc.src='https://js.stripe.com/v3/';sc.onload=res;sc.onerror=rej;document.head.appendChild(sc)})}
-  const r=await fetch(CHECKOUT_API+'/create-checkout-session',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({email:d.email,app_id:window.__appId,application:{state:d.state,business_type:d.business_type,legal_name:d.legal_name,entity_type:d.entity_type,ein_provided:d.ein_provided,products:d.products,address:d.address,first_name:d.first_name,last_name:d.last_name,phone:d.phone}})});
+  const r=await fetch(CHECKOUT_API+'/create-checkout-session',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({email:d.email,app_id:window.__appId,application:{state:d.state,business_type:d.business_type,legal_name:d.legal_name,entity_type:d.entity_type,ein:d.ein,ein_provided:d.ein_provided,products:d.products,address:d.address,first_name:d.first_name,last_name:d.last_name,phone:d.phone}})});
   const j=await r.json();
   if(!j.clientSecret)return;
   const st=Stripe('pk_live_51TsAgEI8UhTLoBvPYjrfseFGnoaGDAMGZIH3Tk4w1eUAdzqTsMR4Qjg8tT83p0P7WIitzurWyazgerQFjxOjaEYf00A4sSTWX6');
@@ -110,7 +110,7 @@ async function mountEmbedded(){
 }
 const payBox=document.getElementById('payBox');
 let phReadyFired=false;
-function collectApp(){const g=q=>{const el=document.querySelector(q);return el?el.value:''};return{state:flowState.value,business_type:(document.querySelector('input[name=type]:checked')||{}).value||'',legal_name:g('input[name=legalName]'),entity_type:g('#entityType'),ein_provided:!!g('#ein'),products:g('.form-step input[placeholder^="Clothing"]'),address:g('#bizAddress'),first_name:g('#cFirst'),last_name:g('input[placeholder=Morgan]'),email:g('#cEmail'),phone:g('input[type=tel]')}}
+function collectApp(){const g=q=>{const el=document.querySelector(q);return el?el.value:''};return{state:flowState.value,business_type:(document.querySelector('input[name=type]:checked')||{}).value||'',legal_name:g('input[name=legalName]'),entity_type:g('#entityType'),ein:g('#ein'),ein_provided:!!g('#ein'),products:g('.form-step input[placeholder^="Clothing"]'),address:g('#bizAddress'),first_name:g('#cFirst'),last_name:g('input[placeholder=Morgan]'),email:g('#cEmail'),phone:g('input[type=tel]')}}
 const GADS_PURCHASE_LABEL='1j-GCMuUqdEcEIHU96JE';
 if(new URLSearchParams(location.search).get('paid')==='1'){form.style.display='none';document.querySelector('.progress').style.display='none';document.querySelector('.progress-top').style.display='none';document.querySelector('.trust-strip').style.display='none';success.classList.add('show');posthog.capture('payment_completed');
 if(GADS_PURCHASE_LABEL&&typeof gtag==='function'){const sid=new URLSearchParams(location.search).get('session_id');gtag('event','conversion',{send_to:'AW-18326874625/'+GADS_PURCHASE_LABEL,value:75.0,currency:'USD',transaction_id:sid||undefined});}}
