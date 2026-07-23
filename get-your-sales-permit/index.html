@@ -50,7 +50,7 @@ function comboInit(input){
   const items=STATES.filter(x=>!q||x.toLowerCase().includes(q));
   list.innerHTML=items.map(x=>'<div class="combo-item">'+x+'</div>').join('');
   list.classList.toggle('open',items.length>0);
-  [...list.children].forEach(c=>c.onmousedown=e=>{e.preventDefault();input.value=c.textContent;list.classList.remove('open');input.dispatchEvent(new Event('change'))});
+  [...list.children].forEach(c=>c.onmousedown=e=>{e.preventDefault();input.value=c.textContent;list.classList.remove('open');input.dispatchEvent(new Event('change'));input.blur()});
  }
  input.addEventListener('focus',renderList);
  input.addEventListener('click',renderList);
@@ -87,7 +87,7 @@ addr.addEventListener('input',()=>{clearTimeout(acT);const q=addr.value.trim();
   const items=await addrSuggest(q);
   acList.innerHTML=items.map(x=>{const div=document.createElement('div');div.textContent=x;return '<div class="ac-item">'+div.innerHTML+'</div>'}).join('');
   acList.hidden=!items.length;
-  [...acList.children].forEach(c=>c.onmousedown=e=>{e.preventDefault();addr.value=c.textContent;acList.hidden=true});
+  [...acList.children].forEach(c=>c.onmousedown=e=>{e.preventDefault();addr.value=c.textContent;acList.hidden=true;addr.blur()});
  },250)});
 document.addEventListener('click',e=>{if(e.target!==addr&&!acList.contains(e.target))acList.hidden=true});
 addr.addEventListener('blur',()=>setTimeout(()=>{acList.hidden=true},150));
