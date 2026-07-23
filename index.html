@@ -45,12 +45,12 @@ if(location.hostname!=='localhost'&&location.hostname!=='127.0.0.1'&&location.pr
 posthog.capture('homepage_viewed');
 const heroState=document.getElementById('heroState');
 const FLOW_URL='get-your-sales-permit/'+(location.protocol==='file:'?'index.html':'');
-const URL_STATE=(()=>{const v=(new URLSearchParams(location.search).get('state')||'').trim();return STATES.find(x=>x.toLowerCase()===v.toLowerCase())||''})();
-if(URL_STATE){heroState.value=URL_STATE;const h=document.querySelector('.hero h1');if(h)h.textContent='Get your '+URL_STATE+' seller’s permit—without the paperwork headache.';document.title=URL_STATE+' Seller’s Permit — Permits Clerk'}
 function openFlow(state){location.href=FLOW_URL+(state?'?state='+encodeURIComponent(state):'')}
 if(location.protocol==='file:')document.querySelectorAll('a[href="get-your-sales-permit/"]').forEach(a=>a.href=FLOW_URL);
 document.querySelectorAll('.open-flow').forEach(x=>x.onclick=()=>{const src=x.closest('.hero')?'hero':x.closest('.cta')?'cta_banner':x.closest('.mobile-bar')?'mobile_bar':'header';posthog.capture('start_application_clicked',{source:src,state:URL_STATE||undefined});openFlow(URL_STATE||undefined)});
 const STATES=["Alabama", "Alaska", "Arizona", "Arkansas", "California", "Colorado", "Connecticut", "Delaware", "Florida", "Georgia", "Hawaii", "Idaho", "Illinois", "Indiana", "Iowa", "Kansas", "Kentucky", "Louisiana", "Maine", "Maryland", "Massachusetts", "Michigan", "Minnesota", "Mississippi", "Missouri", "Montana", "Nebraska", "Nevada", "New Hampshire", "New Jersey", "New Mexico", "New York", "North Carolina", "North Dakota", "Ohio", "Oklahoma", "Oregon", "Pennsylvania", "Rhode Island", "South Carolina", "South Dakota", "Tennessee", "Texas", "Utah", "Vermont", "Virginia", "Washington", "West Virginia", "Wisconsin", "Wyoming"];
+const URL_STATE=(()=>{const v=(new URLSearchParams(location.search).get('state')||'').trim();return STATES.find(x=>x.toLowerCase()===v.toLowerCase())||''})();
+if(URL_STATE){heroState.value=URL_STATE;const h=document.querySelector('.hero h1');if(h)h.textContent='Get your '+URL_STATE+' seller’s permit—without the paperwork headache.';document.title=URL_STATE+' Seller’s Permit — Permits Clerk'}
 function comboInit(input){
  const list=input.parentElement.querySelector('.combo-list');
  function renderList(){
