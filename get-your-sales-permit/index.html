@@ -61,31 +61,35 @@ comboInit(flowState);
 flowState.addEventListener('change',()=>{const m=STATES.find(x=>x.toLowerCase()===flowState.value.trim().toLowerCase());if(m){flowState.value=m;flowState.setCustomValidity('')}else{flowState.setCustomValidity(flowState.value?'Please choose a state from the list':'')}syncTitle()});
 {const m=STATES.find(x=>x.toLowerCase()===preState.toLowerCase());if(m){flowState.value=m;i=1;syncTitle()}}
 
-const GOOGLE_PLACES_KEY='';// paste a Google Places API key here to switch autocomplete to Google
+const GOOGLE_PLACES_KEY='AIzaSyDNY0JzO4yFc4Gkf1orkY6PdxMTj2h8rY8';// website-restricted to permitsclerk.com
 const entityType=document.getElementById('entityType'),einField=document.getElementById('einField'),einInput=document.getElementById('ein');
 function syncEIN(){const solo=entityType.value==='Individual / Sole proprietorship';einField.style.display=solo?'none':'';einInput.disabled=solo}
 entityType.addEventListener('change',syncEIN);syncEIN();
 einInput.addEventListener('input',()=>{const v=einInput.value.replace(/\D/g,'').slice(0,9);einInput.value=v.length>2?v.slice(0,2)+'-'+v.slice(2):v});
 const addr=document.getElementById('bizAddress'),acList=document.getElementById('acList');
-if(GOOGLE_PLACES_KEY){
-  window.initPlaces=()=>{new google.maps.places.Autocomplete(addr,{types:['address'],componentRestrictions:{country:'us'}})};
-  const sc=document.createElement('script');sc.src='https://maps.googleapis.com/maps/api/js?key='+GOOGLE_PLACES_KEY+'&libraries=places&callback=initPlaces';sc.async=true;document.head.appendChild(sc);
-}else{
-  let acT;
-  addr.addEventListener('input',()=>{clearTimeout(acT);const q=addr.value.trim();
-    if(q.length<4){acList.hidden=true;acList.innerHTML='';return}
-    acT=setTimeout(async()=>{try{
-      const r=await fetch('https://photon.komoot.io/api/?q='+encodeURIComponent(q)+'&limit=6&lang=en');
-      const d=await r.json();
-      const items=(d.features||[]).filter(f=>f.properties.countrycode==='US').map(f=>{const pr=f.properties;
-        return [[pr.housenumber,pr.street].filter(Boolean).join(' ')||pr.name,pr.city,pr.state,pr.postcode].filter(Boolean).join(', ')})
-        .filter((v,i,a)=>v&&a.indexOf(v)===i).slice(0,5);
-      acList.innerHTML=items.map(x=>{const div=document.createElement('div');div.textContent=x;return '<div class="ac-item">'+div.innerHTML+'</div>'}).join('');
-      acList.hidden=!items.length;
-      [...acList.children].forEach(c=>c.onmousedown=e=>{e.preventDefault();addr.value=c.textContent;acList.hidden=true});
-    }catch(e){acList.hidden=true}},250)});
-  document.addEventListener('click',e=>{if(e.target!==addr&&!acList.contains(e.target))acList.hidden=true});addr.addEventListener('blur',()=>setTimeout(()=>{acList.hidden=true},150));
+let acT;
+async function addrSuggest(q){
+ if(GOOGLE_PLACES_KEY){try{
+  const r=await fetch('https://places.googleapis.com/v1/places:autocomplete',{method:'POST',headers:{'Content-Type':'application/json','X-Goog-Api-Key':GOOGLE_PLACES_KEY},body:JSON.stringify({input:q,includedRegionCodes:['us']})});
+  const d=await r.json();
+  if(d.suggestions&&d.suggestions.length)return d.suggestions.map(s=>s.placePrediction.text.text.replace(/, USA$/,'')).slice(0,5);
+ }catch(e){}}
+ try{
+  const r=await fetch('https://photon.komoot.io/api/?q='+encodeURIComponent(q)+'&limit=6&lang=en');
+  const d=await r.json();
+  return (d.features||[]).filter(f=>f.properties.countrycode==='US').map(f=>{const pr=f.properties;return [[pr.housenumber,pr.street].filter(Boolean).join(' ')||pr.name,pr.city,pr.state,pr.postcode].filter(Boolean).join(', ')}).filter((v,i,a)=>v&&a.indexOf(v)===i).slice(0,5);
+ }catch(e){return[]}
 }
+addr.addEventListener('input',()=>{clearTimeout(acT);const q=addr.value.trim();
+ if(q.length<4){acList.hidden=true;acList.innerHTML='';return}
+ acT=setTimeout(async()=>{
+  const items=await addrSuggest(q);
+  acList.innerHTML=items.map(x=>{const div=document.createElement('div');div.textContent=x;return '<div class="ac-item">'+div.innerHTML+'</div>'}).join('');
+  acList.hidden=!items.length;
+  [...acList.children].forEach(c=>c.onmousedown=e=>{e.preventDefault();addr.value=c.textContent;acList.hidden=true});
+ },250)});
+document.addEventListener('click',e=>{if(e.target!==addr&&!acList.contains(e.target))acList.hidden=true});
+addr.addEventListener('blur',()=>setTimeout(()=>{acList.hidden=true},150));
 if(location.hostname==='localhost'||location.hostname==='127.0.0.1'||location.protocol==='file:'){const ds=document.getElementById('devSkip');ds.style.display='block';ds.onclick=()=>{if(i<steps.length-1){i++;render();window.scrollTo({top:0,behavior:'smooth'})}}}
 const PH_STEPS=['flow_step_1_state_selection','flow_step_2_business_type','flow_step_3_business_details','flow_step_4_contact_info','flow_step_5_review'];
 function phStep(){posthog.capture(PH_STEPS[i],{step:i+1,page:'application_flow',state:flowState.value||preState||null})}
