@@ -116,12 +116,12 @@ if(location.hostname!=='localhost'&&location.hostname!=='127.0.0.1'&&location.pr
 <footer class="footer"><div class="wrap">
 <img class="brand-logo" src="../assets/permits-clerk-logo-light.png" alt="Permits Clerk" style="height:34px">
 <p style="max-width:520px">Fast, guided seller’s permit filings for small businesses — prepared, error-checked, and filed correctly.</p>
-<p style="font-size:13px"><a href="../states/" style="text-decoration:underline">All states</a> · <a href="../" style="text-decoration:underline">Home</a></p>
+<p style="font-size:13px"><a href="../states/" style="text-decoration:underline">All states</a> · <a href="../" style="text-decoration:underline">Home</a> · <a href="../privacy/" style="text-decoration:underline">Privacy</a> · <a href="../terms/" style="text-decoration:underline">Terms</a> · <a href="../refunds/" style="text-decoration:underline">Refund policy</a> · <a href="mailto:support@permitsclerk.com" style="text-decoration:underline">support@permitsclerk.com</a></p>
 <div class="disclaimer">Permits Clerk is a private filing assistance service and is not affiliated with any government agency, including the Idaho State Tax Commission. You may file directly with the ISTC without using this service. State fee information compiled July 2026 — verify current fees with the ISTC.</div>
 <div style="font-size:12px;color:#7d938c;margin-top:10px">© 2026 Permits Clerk. All rights reserved.</div>
 </div></footer>
 <script>
-if(location.protocol==='file:'){document.querySelectorAll('a').forEach(a=>{const h=a.getAttribute('href');if(h==='../')a.setAttribute('href','../index.html');else if(h&&h.startsWith('../get-your-sales-permit/'))a.setAttribute('href','../get-your-sales-permit/index.html'+(h.includes('?')?h.slice(h.indexOf('?')):''));else if(h==='../states/')a.setAttribute('href','../states/index.html')})}
+if(location.protocol==='file:'){document.querySelectorAll('a').forEach(a=>{const h=a.getAttribute('href');if(h==='../')a.setAttribute('href','../index.html');else if(h&&h.startsWith('../get-your-sales-permit/'))a.setAttribute('href','../get-your-sales-permit/index.html'+(h.includes('?')?h.slice(h.indexOf('?')):''));else if(h==='../states/')a.setAttribute('href','../states/index.html');else if(h&&h.startsWith('../')&&h.endsWith('/'))a.setAttribute('href',h+'index.html')})}
 </script>
 </body>
 </html>
