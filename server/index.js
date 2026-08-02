@@ -50,7 +50,14 @@ app.post('/create-checkout-session', async (req, res) => {
       ui_mode: 'embedded',
       mode: 'payment',
       // copy application metadata onto the PaymentIntent so it shows on the payment in the Dashboard
-      payment_intent_data: { metadata, description: 'Seller\'s Permit Filing — ' + (metadata.state || 'state n/a') + ' — ' + (metadata.app_id || '') },
+      // statement_descriptor_suffix renders as "FILINGS HQ* PERMITS" on card statements;
+      // account prefix "FILINGS HQ" is 10 chars, so the suffix is capped at 10 (22-char combined limit —
+      // Stripe rejects session creation outright if exceeded)
+      payment_intent_data: {
+        metadata,
+        description: 'Seller\'s Permit Filing — ' + (metadata.state || 'state n/a') + ' — ' + (metadata.app_id || ''),
+        statement_descriptor_suffix: 'PERMITS',
+      },
       payment_method_types: ['card'],
       submit_type: 'pay',
       custom_text: { submit: { message: 'Your filing begins the moment your payment completes.' } },
