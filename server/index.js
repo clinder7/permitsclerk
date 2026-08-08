@@ -42,7 +42,8 @@ app.post('/create-checkout-session', async (req, res) => {
       }
     }
     const params = () => ({
-      ui_mode: 'embedded',
+      // 'embedded' was renamed to 'embedded_page' in the dahlia API versions — the old value is rejected
+      ui_mode: 'embedded_page',
       mode: 'payment',
       integration_identifier: INTEGRATION_IDENTIFIER,
       // copy application metadata onto the PaymentIntent so it shows on the payment in the Dashboard
