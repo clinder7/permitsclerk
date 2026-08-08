@@ -55,6 +55,9 @@ app.post('/create-checkout-session', async (req, res) => {
         description: 'Seller\'s Permit Filing — ' + (metadata.state || 'state n/a') + ' — ' + (metadata.app_id || ''),
         statement_descriptor_suffix: 'PERMITS',
       },
+      // card only: Apple Pay / Google Pay still surface (they're card wallets), while
+      // Cash App / Klarna / Amazon Pay stay hidden and the card form renders directly
+      payment_method_types: ['card'],
       submit_type: 'pay',
       custom_text: { submit: { message: 'Your filing begins the moment your payment completes.' } },
       customer_email: email || undefined,
