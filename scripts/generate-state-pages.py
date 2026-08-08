@@ -157,7 +157,7 @@ def page_taxed(s):
                 else f'{s["fee"]} (paid to the state, separate from our fee)')
     qas = [
         (f'How much does a {s["name"]} {s["permit"].lower()} cost?',
-         f'The state charge is {"nothing — registration with the " + s["short"] + " is free" if s["fee"]=="$0" else s["fee"]}. Permits Clerk charges a $75 flat service fee to prepare your application, check it for errors, and file it correctly. {s["quirk"]}'),
+         f'The state charge is {"nothing — registration with the " + s["short"] + " is free" if s["fee"]=="$0" else s["fee"]}. Permits Clerk services start at $75; the full-service filing is $179 and includes application preparation, error checking, and filing support. {s["quirk"]}'),
         (f'Who needs a seller’s permit in {s["name"]}?',
          f'Anyone selling taxable goods in {s["name"]} — including online stores, Amazon and Etsy sellers, retail shops, wholesalers, and pop-up or event vendors — generally must register with the {s["agency"]} before making sales.'),
         (f'How long does it take?',
@@ -169,23 +169,23 @@ def page_taxed(s):
     ]
     jsonld = ('<script type="application/ld+json">{"@context":"https://schema.org","@graph":['
       '{"@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Home","item":"https://www.permitsclerk.com/"},{"@type":"ListItem","position":2,"name":"%s Seller\'s Permit","item":"https://www.permitsclerk.com/%s/"}]},'
-      '{"@type":"Service","name":"%s Seller\'s Permit Filing Service","provider":{"@type":"Organization","name":"Permits Clerk","url":"https://www.permitsclerk.com/"},"areaServed":{"@type":"State","name":"%s"},"offers":{"@type":"Offer","price":"75.00","priceCurrency":"USD"}},'
+      '{"@type":"Service","name":"%s Seller\'s Permit Filing Service","provider":{"@type":"Organization","name":"Permits Clerk","url":"https://www.permitsclerk.com/"},"areaServed":{"@type":"State","name":"%s"},"offers":{"@type":"Offer","price":"179.00","priceCurrency":"USD"}},'
       '{"@type":"FAQPage","mainEntity":[%s]}]}</script>'
       % (s["name"], slug, s["name"], s["name"], faq_jsonld(qas)))
 
     body = HEAD.format(
         title=f'{s["name"]} Seller’s Permit — File Online in Minutes ({("$0 State Fee" if s["fee"]=="$0" else s["fee"] + " State Fee")}) | Permits Clerk',
-        meta=f'Get your {s["name"]} {s["permit"].lower()} fast. {("The state charges no fee" if s["fee"]=="$0" else "State fee: " + s["fee"])} — we prepare and file your {s["short"]} application for $75 flat with expert error checking.',
+        meta=f'Get your {s["name"]} {s["permit"].lower()} fast. {("The state charges no fee" if s["fee"]=="$0" else "State fee: " + s["fee"])} — services start at $75; full-service filing is $179.',
         slug=slug, jsonld=jsonld, q=q)
     body += f"""
 <section class="hero">
 <h1>Get Your {e(s["name"])} {e(permit_label)} — Filed Fast, Done Right</h1>
-<p class="lead">Businesses selling taxable goods in {e(s["name"])} must register for a {e(official)} with the {e(s["agency"])}. Answer a few simple questions — we prepare your application, check it for errors, and file it correctly. <strong>$75 flat, no hidden service fees.</strong></p>
+<p class="lead">Businesses selling taxable goods in {e(s["name"])} must register for a {e(official)} with the {e(s["agency"])}. Answer a few simple questions — we prepare your application, check it for errors, and file it correctly. <strong>Services start at $75; full-service filing is $179.</strong></p>
 <a class="btn" href="../get-your-sales-permit/?state={q}">Start my {e(s["name"])} application →</a>
 <div class="trust-line"><span class="stars">★★★★★</span> 4.8/5 from 1,376 reviews · Trusted by 10,000+ founders</div>
 <div class="facts">
 <div class="fact"><strong>{e(s["fee"])}</strong><small>{e(s["name"])} state fee</small></div>
-<div class="fact"><strong>$75</strong><small>Our flat service fee</small></div>
+<div class="fact"><strong>$179</strong><small>Full-service filing</small></div>
 <div class="fact"><strong>~5 min</strong><small>Application time</small></div>
 <div class="fact"><strong>{e(s["short"] if s["short"] != "—" else s["agency"].split()[0])}</strong><small>Issuing agency</small></div>
 </div>
@@ -209,7 +209,7 @@ def page_taxed(s):
 <li>About 5 minutes</li>
 </ul></div>
 </div>
-<div class="callout"><strong>Good to know:</strong> The {e(s["name"])} state charge is {e(fee_line)}. {e(s["quirk"])} Our $75 covers guided preparation, an expert error check (mistakes are the #1 cause of delays), filing support, and digital delivery of your documents.</div>
+<div class="callout"><strong>Good to know:</strong> The {e(s["name"])} state charge is {e(fee_line)}. {e(s["quirk"])} Our $179 full-service filing covers guided preparation, an expert error check, filing support, and digital delivery of your documents. Other services start at $75.</div>
 </section>
 <section class="section">
 <h2>How it works</h2>
@@ -225,7 +225,7 @@ def page_taxed(s):
 """ + "".join(f'<details{" open" if i==0 else ""}><summary>{e(qa[0])}</summary><p>{e(qa[1])}</p></details>\n' for i, qa in enumerate(qas)) + f"""</div>
 </section>
 <div class="cta-band">
-<div><h2>Start your {e(s["name"])} application now.</h2><p>5 minutes of questions · $75 flat · expert error check included</p></div>
+<div><h2>Start your {e(s["name"])} application now.</h2><p>Services from $75 · full-service filing $179 · expert error check included</p></div>
 <a class="btn light" href="../get-your-sales-permit/?state={q}">Start my application →</a>
 </div>
 """
@@ -253,7 +253,7 @@ def page_no_tax(s):
 <section class="hero">
 <h1>Does {e(s["name"])} Require a Seller’s Permit? Short Answer: No.</h1>
 <p class="lead">{e(s["name"])} has <strong>no statewide sales tax</strong>, so there is no statewide seller’s permit to get. {e(s["quirk"])}</p>
-<div class="callout" style="max-width:760px"><strong>Selling into other states?</strong> If your online store ships to customers in states that do charge sales tax, you may need seller’s permits there once you pass their thresholds. We file those applications — $75 flat per state.</div>
+<div class="callout" style="max-width:760px"><strong>Selling into other states?</strong> If your online store ships to customers in states that do charge sales tax, you may need seller’s permits there once you pass their thresholds. Services start at $75; full-service filing is $179 per state.</div>
 <p style="margin-top:24px"><a class="btn" href="../get-your-sales-permit/">Start an application for another state →</a></p>
 <div class="trust-line"><span class="stars">★★★★★</span> 4.8/5 from 1,376 reviews · Trusted by 10,000+ founders</div>
 </section>
@@ -280,11 +280,11 @@ print(f"wrote {len(slugs)} state pages")
 # ---------- states index ----------
 links = "".join(f'<a href="../{slug}/">{e(name)}</a>' for name, slug in slugs)
 idx = HEAD.format(title="Seller’s Permits by State — Requirements & Fees | Permits Clerk",
-    meta="Seller’s permit requirements, state fees, and filing for all 50 states. $75 flat filing service.",
+    meta="Seller’s permit requirements, state fees, and filing for all 50 states. Services start at $75; full-service filing is $179.",
     slug="states", jsonld="", q="")
 idx += f"""
 <section class="hero"><h1>Seller’s Permits by State</h1>
-<p class="lead">Requirements, state fees, and issuing agencies for all 50 states — plus guided filing for $75 flat.</p>
+<p class="lead">Requirements, state fees, and issuing agencies for all 50 states — services start at $75, with full-service filing at $179.</p>
 <div class="states-grid">{links}</div></section>
 """
 idx += FOOT.format(agency="any state agency", short="relevant agency")

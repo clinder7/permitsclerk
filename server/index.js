@@ -1,22 +1,17 @@
 // Permits Clerk payment API — creates embedded Checkout Sessions.
 // Env vars (set in the Render dashboard, never committed):
 //   STRIPE_SECRET_KEY  sk_live_... from the same account as the publishable key
-//   STRIPE_PRICE_ID    optional override; otherwise the product's default price is used
 //   ALLOWED_ORIGINS    comma-separated, e.g. https://permitsclerk.com,https://www.permitsclerk.com
 const express = require('express');
 const Stripe = require('stripe');
+const { randomBytes } = require('crypto');
 
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
-const PRODUCT_ID = 'prod_UtTz3Qehuonkiu'; // Seller's Permit Application Filing ($204)
-let PRICE_ID = process.env.STRIPE_PRICE_ID || null;
-async function getPriceId() {
-  if (PRICE_ID) return PRICE_ID;
-  const product = await stripe.products.retrieve(PRODUCT_ID);
-  if (!product.default_price) throw new Error('product has no default price');
-  PRICE_ID = typeof product.default_price === 'string' ? product.default_price : product.default_price.id;
-  console.log('resolved default price:', PRICE_ID);
-  return PRICE_ID;
-}
+const stripe = new Stripe(process.env.STRIPE_SECRET_KEY, { apiVersion: '2026-07-29.dahlia' });
+const PRODUCT_ID = 'prod_UtTz3Qehuonkiu'; // Seller's Permit Full-Service Filing
+const SERVICE_PRICE_CENTS = 17900;
+const INTEGRATION_IDENTIFIER = 'permits_' + Array.from(
+  randomBytes(8), byte => String.fromCharCode(97 + (byte % 26)),
+).join('');
 const ORIGINS = (process.env.ALLOWED_ORIGINS || 'https://permitsclerk.com,https://www.permitsclerk.com')
   .split(',').map(s => s.trim());
 
@@ -49,6 +44,7 @@ app.post('/create-checkout-session', async (req, res) => {
     const params = () => ({
       ui_mode: 'embedded',
       mode: 'payment',
+      integration_identifier: INTEGRATION_IDENTIFIER,
       // copy application metadata onto the PaymentIntent so it shows on the payment in the Dashboard
       // statement_descriptor_suffix renders as "FILINGS HQ* PERMITS" on card statements;
       // account prefix "FILINGS HQ" is 10 chars, so the suffix is capped at 10 (22-char combined limit —
@@ -58,7 +54,6 @@ app.post('/create-checkout-session', async (req, res) => {
         description: 'Seller\'s Permit Filing — ' + (metadata.state || 'state n/a') + ' — ' + (metadata.app_id || ''),
         statement_descriptor_suffix: 'PERMITS',
       },
-      payment_method_types: ['card'],
       submit_type: 'pay',
       custom_text: { submit: { message: 'Your filing begins the moment your payment completes.' } },
       customer_email: email || undefined,
@@ -66,16 +61,17 @@ app.post('/create-checkout-session', async (req, res) => {
       metadata,
       return_url: 'https://www.permitsclerk.com/get-your-sales-permit?paid=1&session_id={CHECKOUT_SESSION_ID}',
     });
-    let session;
-    try {
-      session = await stripe.checkout.sessions.create({ ...params(), line_items: [{ price: await getPriceId(), quantity: 1 }] });
-    } catch (err) {
-      // price changed in Stripe (old default archived) — drop cache, re-resolve, retry once
-      if (/archived|inactive|no such price/i.test(err.message || '')) {
-        PRICE_ID = null;
-        session = await stripe.checkout.sessions.create({ ...params(), line_items: [{ price: await getPriceId(), quantity: 1 }] });
-      } else throw err;
-    }
+    const session = await stripe.checkout.sessions.create({
+      ...params(),
+      line_items: [{
+        price_data: {
+          currency: 'usd',
+          product: PRODUCT_ID,
+          unit_amount: SERVICE_PRICE_CENTS,
+        },
+        quantity: 1,
+      }],
+    });
     res.json({ clientSecret: session.client_secret });
   } catch (err) {
     console.error('checkout session error:', err.message);
