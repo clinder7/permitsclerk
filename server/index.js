@@ -8,7 +8,7 @@ const { randomBytes } = require('crypto');
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY, { apiVersion: '2026-07-29.dahlia' });
 const PRODUCT_ID = 'prod_UtTz3Qehuonkiu'; // Seller's Permit Full-Service Filing
-const SERVICE_PRICE_CENTS = 17900;
+const SERVICE_PRICE_CENTS = 12900;
 const INTEGRATION_IDENTIFIER = 'permits_' + Array.from(
   randomBytes(8), byte => String.fromCharCode(97 + (byte % 26)),
 ).join('');
